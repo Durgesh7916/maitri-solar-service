@@ -118,7 +118,7 @@ public class SolarService {
 			cs.registerOutParameter(6, OracleTypes.CURSOR);
 
 			
-			System.out.println("hello");
+			System.out.println("hello1");
 			/*
 			 * EXECUTE
 			 */
