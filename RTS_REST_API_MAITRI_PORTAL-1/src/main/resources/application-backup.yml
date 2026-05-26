@@ -1,0 +1,43 @@
+server:
+  port: 9090
+
+spring:
+
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:oracle:thin:@//10.10.196.37:1521/testdev1
+    username: NC_PROD
+    password: PrakashBhavan345
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jackson:
+    serialization:
+      indent-output: true
+
+logging:
+  level:
+    "com.msedcl": DEBUG
+    "org.springframework": INFO
+    "com.zaxxer.hikari": INFO
+
+msedcl:
+
+  solar:
+
+    api:
+      version: v1
+
+    oracle:
+
+      package-name: PK_PAY_NC_CHARGES
+
+      solar-function: set_information_from_solarpv
+
+      consumer-procedure: getAppInfoSolarPv
+
+    scheduler:
+
+      refresh-cron: "0 0 0 * * *"
