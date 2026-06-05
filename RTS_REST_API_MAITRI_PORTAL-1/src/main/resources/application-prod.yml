@@ -114,3 +114,9 @@ soap:
         url: http://10.10.130.73:8080/axis2/services/HtArrearsWebService
     lt:
         url: http://10.10.67.5:8081/billingservices/cbpdarrsws
+sms:
+   url: https://mse.tdots.in/api/pushsms
+   aid: msebapi
+   pin: 92BAdtQJexM6c
+   signature: MSEDCL
+   template-id: n300256
