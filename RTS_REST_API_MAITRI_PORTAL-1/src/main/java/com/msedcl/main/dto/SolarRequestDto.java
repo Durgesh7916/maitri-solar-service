@@ -1,5 +1,8 @@
 package com.msedcl.main.dto;
 
+import java.math.BigDecimal;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
@@ -35,6 +38,12 @@ public class SolarRequestDto {
     @NotNull(message = "Existing Supply Voltage is required")
     private Integer existingSupplyVoltage;
 
+    @Schema(
+    	    description = """
+    	        Format: RE_GENERATOR_TYPE_ID_N @ VoltageID @ New_RE_Capacity @ Existing_Capacity
+    	        """,
+    	    example = "1@1@5@0"
+    	)
     @NotBlank(message = "RE Generator String is required")
     private String reGeneratorString;
 
@@ -59,6 +68,7 @@ public class SolarRequestDto {
     @Digits(integer = 5, fraction = 2)
     private Double existReSancCapacity;
 
+    @Schema(hidden = true)
     @Pattern(regexp = "^[YN]$",
             message = "Capacity Extension Flag must be Y or N")
     private String capacityExtensionFlagYn;
@@ -69,25 +79,32 @@ public class SolarRequestDto {
     @NotNull(message = "Solar RE Type Id required")
     private Integer solarReTypeId;
 
-    @DecimalMin(value = "0.0",
-            message = "New Load cannot be negative")
+    @Schema(hidden = true)
+     @DecimalMin(value = "0.0",
+     message = "New Load cannot be negative")
     @Digits(integer = 5, fraction = 2)
     private Double newLoad;
 
+    @Schema(hidden = true)
     private Integer newLoadUnitId;
 
-    @DecimalMin(value = "0.0",
-            message = "New Demand cannot be negative")
-    @Digits(integer = 5, fraction = 2)
+    @Schema(hidden = true)
+//    @DecimalMin(value = "0.0",
+//            message = "New Demand cannot be negative")
+   @Digits(integer = 5, fraction = 2)
     private Double newDemand;
 
+    @Schema(hidden = true)
     private Integer loadChangeApplicationId;
 
+   
+    @Schema(hidden = true)
     @DecimalMin(value = "0.0",
             message = "Existing Load cannot be negative")
     @Digits(integer = 5, fraction = 2)
     private Double existingLoad;
 
+    @Schema(hidden = true)
     @DecimalMin(value = "0.0",
             message = "New RE Capacity cannot be negative")
     @Digits(integer = 5, fraction = 2)
@@ -95,6 +112,7 @@ public class SolarRequestDto {
     
     private String createdBy = "MAITRI";
 
+    @Schema(hidden = true)
     public String getCreatedBy() {
         return createdBy;
     }
@@ -103,6 +121,7 @@ public class SolarRequestDto {
         this.createdBy = createdBy;
     }
 
+    @Schema(hidden = true)
     private String npcRegRefCode;
      
     /*
@@ -110,6 +129,7 @@ public class SolarRequestDto {
      * Example : 1,2,3
      */
    
+    @Schema(hidden = true)
     private String consumerCategoryExisting;
 
     public String getConsumerCategoryExisting() {
@@ -126,6 +146,11 @@ public class SolarRequestDto {
     /*
      * LT / HT CATEGORY
      */
+    @Schema(
+    	    description = """
+    	        Consumer_Category_LT_HT must be LT or LTIP or HT
+    	        """
+    	)
     @NotBlank(message = "Consumer_Category_LT/HT/LTIP is required")
     @Pattern(
             regexp = "LT|HT|LTIP",
@@ -369,47 +394,94 @@ public class SolarRequestDto {
 		this.existingLoad = existingLoad;
 	}
 
+	@Schema(
+	        description = "Battery storage capacity; must not exceed applied solar sanctioned capacity",
+	        example = "5.00"
+	    	)
+	@DecimalMin(
+		    value = "0.0",
+		    message = "Battery Storage Capacity cannot be negative"
+		)
+		@Digits(integer = 5, fraction = 2)
+		private Double batteryStorageCapacity;
 
-	@Override
-	public String toString() {
-		return "SolarRequestDto [consumerNumber=" + consumerNumber + ", mobile=" + mobile + ", phone=" + phone
-				+ ", email=" + email + ", place=" + place + ", existingSupplyVoltage=" + existingSupplyVoltage
-				+ ", reGeneratorString=" + reGeneratorString + ", reArrangementId=" + reArrangementId
-				+ ", loadSeparatedYn=" + loadSeparatedYn + ", connectedParallelYn=" + connectedParallelYn
-				+ ", inverterCapacity=" + inverterCapacity + ", existReSancCapacity=" + existReSancCapacity
-				+ ", capacityExtensionFlagYn=" + capacityExtensionFlagYn + ", solarSchemeCode=" + solarSchemeCode
-				+ ", solarReTypeId=" + solarReTypeId + ", newLoad=" + newLoad + ", newLoadUnitId=" + newLoadUnitId
-				+ ", newDemand=" + newDemand + ", loadChangeApplicationId=" + loadChangeApplicationId
-				+ ", existingLoad=" + existingLoad + "]";
-	}
+		public Double getBatteryStorageCapacity() {
+		    return batteryStorageCapacity;
+		}
 
+		public void setBatteryStorageCapacity(Double batteryStorageCapacity) {
+		    this.batteryStorageCapacity = batteryStorageCapacity;
+		}
 
-	public SolarRequestDto(String consumerNumber, String mobile, String phone, String email, String place,
-			Integer existingSupplyVoltage, String reGeneratorString, Integer reArrangementId, String loadSeparatedYn,
-			String connectedParallelYn, Double inverterCapacity, Double existReSancCapacity,
-			String capacityExtensionFlagYn, Integer solarSchemeCode, Integer solarReTypeId, Double newLoad,
-			Integer newLoadUnitId, Double newDemand, Integer loadChangeApplicationId, Double existingLoad) {
-		super();
-		this.consumerNumber = consumerNumber;
-		this.mobile = mobile;
-		this.phone = phone;
-		this.email = email;
-		this.place = place;
-		this.existingSupplyVoltage = existingSupplyVoltage;
-		this.reGeneratorString = reGeneratorString;
-		this.reArrangementId = reArrangementId;
-		this.loadSeparatedYn = loadSeparatedYn;
-		this.connectedParallelYn = connectedParallelYn;
-		this.inverterCapacity = inverterCapacity;
-		this.existReSancCapacity = existReSancCapacity;
-		this.capacityExtensionFlagYn = capacityExtensionFlagYn;
-		this.solarSchemeCode = solarSchemeCode;
-		this.solarReTypeId = solarReTypeId;
-		this.newLoad = newLoad;
-		this.newLoadUnitId = newLoadUnitId;
-		this.newDemand = newDemand;
-		this.loadChangeApplicationId = loadChangeApplicationId;
-		this.existingLoad = existingLoad;
-	}
-    
+		@Override
+		public String toString() {
+			return "SolarRequestDto [consumerNumber=" + consumerNumber + ", mobile=" + mobile + ", phone=" + phone
+					+ ", email=" + email + ", place=" + place + ", existingSupplyVoltage=" + existingSupplyVoltage
+					+ ", reGeneratorString=" + reGeneratorString + ", reArrangementId=" + reArrangementId
+					+ ", loadSeparatedYn=" + loadSeparatedYn + ", connectedParallelYn=" + connectedParallelYn
+					+ ", inverterCapacity=" + inverterCapacity + ", existReSancCapacity=" + existReSancCapacity
+					+ ", capacityExtensionFlagYn=" + capacityExtensionFlagYn + ", solarSchemeCode=" + solarSchemeCode
+					+ ", solarReTypeId=" + solarReTypeId + ", newLoad=" + newLoad + ", newLoadUnitId=" + newLoadUnitId
+					+ ", newDemand=" + newDemand + ", loadChangeApplicationId=" + loadChangeApplicationId
+					+ ", existingLoad=" + existingLoad + ", newReCapacity=" + newReCapacity + ", createdBy=" + createdBy
+					+ ", npcRegRefCode=" + npcRegRefCode + ", consumerCategoryExisting=" + consumerCategoryExisting
+					+ ", consumerCategoryLtHt=" + consumerCategoryLtHt + ", batteryStorageCapacity="
+					+ batteryStorageCapacity + "]";
+		}
+
+		public SolarRequestDto(
+				@NotBlank(message = "Consumer Number is required") @Size(min = 12, max = 12, message = "Consumer Number must be 12 digits") String consumerNumber,
+				@NotBlank(message = "Mobile number is required") @Pattern(regexp = "^[0-9]{10}$", message = "Mobile number must be 10 digits") String mobile,
+				@NotBlank(message = "Phone number is required") @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits") String phone,
+				@NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
+				@NotBlank(message = "Place is required") String place,
+				@NotNull(message = "Existing Supply Voltage is required") Integer existingSupplyVoltage,
+				@NotBlank(message = "RE Generator String is required") String reGeneratorString,
+				@NotNull(message = "Re Arrangement Id is required") Integer reArrangementId,
+				@Pattern(regexp = "^[YN]$", message = "Load Separated must be Y or N") String loadSeparatedYn,
+				@Pattern(regexp = "^[YN]$", message = "Connected Parallel must be Y or N") String connectedParallelYn,
+				@DecimalMin(value = "0.0", message = "Inverter Capacity cannot be negative") @Digits(integer = 5, fraction = 2) Double inverterCapacity,
+				@DecimalMin(value = "0.0", message = "Existing RE Capacity cannot be negative") @Digits(integer = 5, fraction = 2) Double existReSancCapacity,
+				@Pattern(regexp = "^[YN]$", message = "Capacity Extension Flag must be Y or N") String capacityExtensionFlagYn,
+				@NotNull(message = "Solar Scheme Code required") Integer solarSchemeCode,
+				@NotNull(message = "Solar RE Type Id required") Integer solarReTypeId,
+				@DecimalMin(value = "0.0", message = "New Load cannot be negative") @Digits(integer = 5, fraction = 2) Double newLoad,
+				Integer newLoadUnitId,
+				@DecimalMin(value = "0.0", message = "New Demand cannot be negative") @Digits(integer = 5, fraction = 2) Double newDemand,
+				Integer loadChangeApplicationId,
+				@DecimalMin(value = "0.0", message = "Existing Load cannot be negative") @Digits(integer = 5, fraction = 2) Double existingLoad,
+				@DecimalMin(value = "0.0", message = "New RE Capacity cannot be negative") @Digits(integer = 5, fraction = 2) Double newReCapacity,
+				String createdBy, String npcRegRefCode, String consumerCategoryExisting,
+				@NotBlank(message = "Consumer_Category_LT/HT/LTIP is required") @Pattern(regexp = "LT|HT|LTIP", message = "Consumer_Category_LT_HT must be LT or LTIP or HT") String consumerCategoryLtHt,
+				@DecimalMin(value = "0.0", message = "Battery Storage Capacity cannot be negative") @Digits(integer = 5, fraction = 2) Double batteryStorageCapacity) {
+			super();
+			this.consumerNumber = consumerNumber;
+			this.mobile = mobile;
+			this.phone = phone;
+			this.email = email;
+			this.place = place;
+			this.existingSupplyVoltage = existingSupplyVoltage;
+			this.reGeneratorString = reGeneratorString;
+			this.reArrangementId = reArrangementId;
+			this.loadSeparatedYn = loadSeparatedYn;
+			this.connectedParallelYn = connectedParallelYn;
+			this.inverterCapacity = inverterCapacity;
+			this.existReSancCapacity = existReSancCapacity;
+			this.capacityExtensionFlagYn = capacityExtensionFlagYn;
+			this.solarSchemeCode = solarSchemeCode;
+			this.solarReTypeId = solarReTypeId;
+			this.newLoad = newLoad;
+			this.newLoadUnitId = newLoadUnitId;
+			this.newDemand = newDemand;
+			this.loadChangeApplicationId = loadChangeApplicationId;
+			this.existingLoad = existingLoad;
+			this.newReCapacity = newReCapacity;
+			this.createdBy = createdBy;
+			this.npcRegRefCode = npcRegRefCode;
+			this.consumerCategoryExisting = consumerCategoryExisting;
+			this.consumerCategoryLtHt = consumerCategoryLtHt;
+			this.batteryStorageCapacity = batteryStorageCapacity;
+		}
+	
+	
 }

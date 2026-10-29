@@ -24,9 +24,9 @@ import jakarta.xml.bind.annotation.XmlRegistry;
 @XmlRegistry
 public class ObjectFactory {
 
-    private static final QName _GetArrearsAmountWithCurrentBillFlagConsumerNumber_QNAME = new QName("http://ws.mahadiscom.in/xsd", "consumerNumber");
+    private static final QName _GetArrearsAmountConsumerNumber_QNAME = new QName("http://ws.mahadiscom.in/xsd", "consumerNumber");
+    private static final QName _GetArrearsAmountResponseReturn_QNAME = new QName("http://ws.mahadiscom.in/xsd", "return");
     private static final QName _GetArrearsAmountWithCurrentBillFlagCurrentBillFlagYn_QNAME = new QName("http://ws.mahadiscom.in/xsd", "currentBillFlagYn");
-    private static final QName _GetArrearsAmountWithCurrentBillFlagResponseReturn_QNAME = new QName("http://ws.mahadiscom.in/xsd", "return");
     private static final QName _ArrearsDetailsDTOConsumerNumber_QNAME = new QName("http://dto.arrears.ht.msedcl.in/xsd", "consumerNumber");
     private static final QName _ArrearsDetailsDTOCurrentBillFlagYn_QNAME = new QName("http://dto.arrears.ht.msedcl.in/xsd", "currentBillFlagYn");
     private static final QName _ArrearsDetailsDTOStatusMessage_QNAME = new QName("http://dto.arrears.ht.msedcl.in/xsd", "statusMessage");
@@ -36,36 +36,6 @@ public class ObjectFactory {
      * 
      */
     public ObjectFactory() {
-    }
-
-    /**
-     * Create an instance of {@link GetArrearsAmountWithCurrentBillFlag }
-     * 
-     * @return
-     *     the new instance of {@link GetArrearsAmountWithCurrentBillFlag }
-     */
-    public GetArrearsAmountWithCurrentBillFlag createGetArrearsAmountWithCurrentBillFlag() {
-        return new GetArrearsAmountWithCurrentBillFlag();
-    }
-
-    /**
-     * Create an instance of {@link GetArrearsAmountWithCurrentBillFlagResponse }
-     * 
-     * @return
-     *     the new instance of {@link GetArrearsAmountWithCurrentBillFlagResponse }
-     */
-    public GetArrearsAmountWithCurrentBillFlagResponse createGetArrearsAmountWithCurrentBillFlagResponse() {
-        return new GetArrearsAmountWithCurrentBillFlagResponse();
-    }
-
-    /**
-     * Create an instance of {@link ArrearsDetailsDTO }
-     * 
-     * @return
-     *     the new instance of {@link ArrearsDetailsDTO }
-     */
-    public ArrearsDetailsDTO createArrearsDetailsDTO() {
-        return new ArrearsDetailsDTO();
     }
 
     /**
@@ -89,6 +59,62 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ArrearsDetailsDTO }
+     * 
+     * @return
+     *     the new instance of {@link ArrearsDetailsDTO }
+     */
+    public ArrearsDetailsDTO createArrearsDetailsDTO() {
+        return new ArrearsDetailsDTO();
+    }
+
+    /**
+     * Create an instance of {@link GetArrearsAmountWithCurrentBillFlag }
+     * 
+     * @return
+     *     the new instance of {@link GetArrearsAmountWithCurrentBillFlag }
+     */
+    public GetArrearsAmountWithCurrentBillFlag createGetArrearsAmountWithCurrentBillFlag() {
+        return new GetArrearsAmountWithCurrentBillFlag();
+    }
+
+    /**
+     * Create an instance of {@link GetArrearsAmountWithCurrentBillFlagResponse }
+     * 
+     * @return
+     *     the new instance of {@link GetArrearsAmountWithCurrentBillFlagResponse }
+     */
+    public GetArrearsAmountWithCurrentBillFlagResponse createGetArrearsAmountWithCurrentBillFlagResponse() {
+        return new GetArrearsAmountWithCurrentBillFlagResponse();
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link String }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "consumerNumber", scope = GetArrearsAmount.class)
+    public JAXBElement<String> createGetArrearsAmountConsumerNumber(String value) {
+        return new JAXBElement<>(_GetArrearsAmountConsumerNumber_QNAME, String.class, GetArrearsAmount.class, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ArrearsDetailsDTO }{@code >}
+     * 
+     * @param value
+     *     Java instance representing xml element's value.
+     * @return
+     *     the new instance of {@link JAXBElement }{@code <}{@link ArrearsDetailsDTO }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "return", scope = GetArrearsAmountResponse.class)
+    public JAXBElement<ArrearsDetailsDTO> createGetArrearsAmountResponseReturn(ArrearsDetailsDTO value) {
+        return new JAXBElement<>(_GetArrearsAmountResponseReturn_QNAME, ArrearsDetailsDTO.class, GetArrearsAmountResponse.class, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
      * 
      * @param value
@@ -98,7 +124,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "consumerNumber", scope = GetArrearsAmountWithCurrentBillFlag.class)
     public JAXBElement<String> createGetArrearsAmountWithCurrentBillFlagConsumerNumber(String value) {
-        return new JAXBElement<>(_GetArrearsAmountWithCurrentBillFlagConsumerNumber_QNAME, String.class, GetArrearsAmountWithCurrentBillFlag.class, value);
+        return new JAXBElement<>(_GetArrearsAmountConsumerNumber_QNAME, String.class, GetArrearsAmountWithCurrentBillFlag.class, value);
     }
 
     /**
@@ -124,33 +150,7 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "return", scope = GetArrearsAmountWithCurrentBillFlagResponse.class)
     public JAXBElement<ArrearsDetailsDTO> createGetArrearsAmountWithCurrentBillFlagResponseReturn(ArrearsDetailsDTO value) {
-        return new JAXBElement<>(_GetArrearsAmountWithCurrentBillFlagResponseReturn_QNAME, ArrearsDetailsDTO.class, GetArrearsAmountWithCurrentBillFlagResponse.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link String }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "consumerNumber", scope = GetArrearsAmount.class)
-    public JAXBElement<String> createGetArrearsAmountConsumerNumber(String value) {
-        return new JAXBElement<>(_GetArrearsAmountWithCurrentBillFlagConsumerNumber_QNAME, String.class, GetArrearsAmount.class, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ArrearsDetailsDTO }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link ArrearsDetailsDTO }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://ws.mahadiscom.in/xsd", name = "return", scope = GetArrearsAmountResponse.class)
-    public JAXBElement<ArrearsDetailsDTO> createGetArrearsAmountResponseReturn(ArrearsDetailsDTO value) {
-        return new JAXBElement<>(_GetArrearsAmountWithCurrentBillFlagResponseReturn_QNAME, ArrearsDetailsDTO.class, GetArrearsAmountResponse.class, value);
+        return new JAXBElement<>(_GetArrearsAmountResponseReturn_QNAME, ArrearsDetailsDTO.class, GetArrearsAmountWithCurrentBillFlagResponse.class, value);
     }
 
     /**

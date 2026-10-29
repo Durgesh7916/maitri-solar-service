@@ -34,6 +34,7 @@ import com.msedcl.main.dto.Payload;
 import com.msedcl.main.dto.PmsResponseDto;
 import com.msedcl.main.dto.SolarRequestDto;
 import com.msedcl.main.exception.ResourceNotFoundException;
+import com.msedcl.main.validator.ConsumerStatusValidator;
 
 import jakarta.annotation.PostConstruct;
 
@@ -96,6 +97,7 @@ public class SolarService {
 		Connection conn = null;
 
 		CallableStatement cs = null;
+		String reGeneratorString=null;
 
 		try {
 
@@ -250,6 +252,8 @@ public class SolarService {
 		CallableStatement loadCs = null;
 		CallableStatement solarCs = null;
 		ResultSet rs = null;
+		ResultSet rs_load = null;
+		String reGeneratorString=null;
 
 		try {
 
@@ -261,7 +265,16 @@ public class SolarService {
 			// STEP 1: FETCH EXISTING LOAD
 			// ==================================================
 			try {
+                 
+				// Step 1: Validate consumer number and status
+				String validationMessage =
+				        ConsumerStatusValidator.validateConsumerStatus(
+				                conn, req.getConsumerNumber());
 
+				if (validationMessage != null) {
+				    return validationMessage;
+				}
+				
 				CallableStatement getLoadInfo = conn.prepareCall(ProcedureConstants.GET_SOLAR_INFO);
 
 				getLoadInfo.setString(1, req.getConsumerNumber().trim());
@@ -275,6 +288,7 @@ public class SolarService {
 				getLoadInfo.execute();
 
 				rs = (ResultSet) getLoadInfo.getObject(2);
+				rs_load = (ResultSet) getLoadInfo.getObject(6);
 
 				if (rs == null) {
 
@@ -294,22 +308,96 @@ public class SolarService {
 						// your code
 					}
 
-					req.setExistingLoad(rs.getDouble("SANCTIONED_LOAD"));
+					//req.setExistingLoad(rs.getDouble("SANCTIONED_LOAD"));
+					
+					System.out.println("SANCTIONED_LOAD="+rs.getDouble("SANCTIONED_LOAD"));
+					System.out.println("Existing Solar Sanctioned Capacity="+rs.getDouble("EXIST_RE_SANCTIONED_CAPACITY"));
+					req.setExistReSancCapacity(rs.getDouble("EXIST_RE_SANCTIONED_CAPACITY"));
+					if(rs_load!=null)
+					{
+						if(rs_load.next())
+						{
+							System.out.println("SANCTIONED_LOAD_KW="+rs_load.getDouble("SANCTIONED_LOAD_KW"));
+						    req.setExistingLoad(rs_load.getDouble("SANCTIONED_LOAD_KW"));
+						    System.out.println("load change application load considered");
+						}
+						else
+						{
+							System.out.println("SANCTIONED_LOAD="+rs.getDouble("SANCTIONED_LOAD"));
+							req.setExistingLoad(rs.getDouble("SANCTIONED_LOAD"));
+							System.out.println("no load change application available load considered");
+						}
+					}
+						
+					
+
 
 					// req.setCons(rs.getString("LT_HT_CD"));
 
 					req.setConsumerCategoryExisting(rs.getString("LT_HT_CD"));
+					
+					 reGeneratorString = req.getReGeneratorString();
+					
+					if (reGeneratorString == null || reGeneratorString.isBlank()) {
 
-					String[] arr = req.getReGeneratorString().split("@");
+						return "ERROR: Re Generator String is required";
 
-					String newCapacity = arr[2]; // 5
-					String existingCapacity = arr[3]; // 0
+					}
+					
+					// Validate that exactly 4 values are provided
+					String[] reGeneratorParts = reGeneratorString.split("@", -1);
+
+					if (reGeneratorParts.length != 4) {
+					    return "ERROR: Re Generator String must contain exactly 4 values separated by '@'. Example: 1@1@1@200";
+					}
+					
+					for (String part : reGeneratorParts) {
+					    if (part.isBlank()) {
+					        return "ERROR: Re Generator String must not contain empty values. Example: 1@1@1@200";
+					    }
+					}
+
+					//String[] arr = req.getReGeneratorString().split("@");
+
+					//String newCapacity = arr[2]; // 5
+					//String existingCapacity = arr[3]; // 0
+					
+					
+					
+					//String[] arr = req.getReGeneratorString().split("@", -1);
+
+					//String newCapacity = arr[2]; // 3rd value
+					
+
+					/**************changes re generator strint existing capacity login end**************/
+
+					String[] arr = req.getReGeneratorString().split("@", -1);
+
+					String newCapacity = arr[2]; // 3rd value
+
+					// Get existing capacity from database
+					double existingCapacity = req.getExistReSancCapacity();
+
+					// Update the 4th value
+					arr[3] = String.valueOf(existingCapacity);
+
+					// Update the request DTO with the modified string
+					req.setReGeneratorString(String.join("@", arr));
+					
+					System.out.println("new Re Generator String ="+req.getReGeneratorString());
+					
+					
+					
+					/**************changes re generator strint existing capacity login end**************/
 
 					req.setNewReCapacity(Double.parseDouble(newCapacity));
+					
+					System.out.println("new Re Generator String new capacity ="+req.getNewReCapacity());
 
 				}
 
 				rs.close();
+				rs_load.close();
 				getLoadInfo.close();
 
 			} catch (SQLException e) {
@@ -356,12 +444,12 @@ public class SolarService {
 			// ==================================================
 			// STEP 2: LOAD EXTENSION LOGIC
 			// ==================================================
-			boolean loadExtensionRequired = req.getNewLoad() > req.getExistingLoad();
+			//boolean loadExtensionRequired = req.getNewLoad() > req.getExistingLoad();
 
 			//boolean reCapacityCheck = (req.getExistReSancCapacity() + req.getNewReCapacity()) > req.getExistingLoad();
 			
-			boolean reCapacityCheck =
-			        Math.ceil(req.getExistReSancCapacity() + req.getNewReCapacity())
+	boolean reCapacityCheck =
+		        Math.ceil(req.getExistReSancCapacity() + req.getNewReCapacity())
 			        > Math.ceil(req.getExistingLoad());
 			        
 			        
@@ -407,11 +495,11 @@ public class SolarService {
 			// STEP 3: SAFETY CHECK BEFORE SOLAR APP
 			// ==================================================
 
-			if (loadExtensionRequired) {
-				req.setLoadChangeApplicationId(0);
-				return "ERROR: Cannot proceed to Solar Application, Load Extension Required First Create Load Change Application \n"
-						+ "Applied Load=" + req.getNewLoad() + "  Existing load =" + req.getExistingLoad();
-			}
+//			if (loadExtensionRequired) {
+//				req.setLoadChangeApplicationId(0);
+//				return "ERROR: Cannot proceed to Solar Application, Load Extension Required First Create Load Change Application \n"
+//						+ "Applied Load=" + req.getNewLoad() + "  Existing load =" + req.getExistingLoad();
+//			}
 
 			if (reCapacityCheck) {
 				// req.setLoadChangeApplicationId(0);
@@ -419,7 +507,7 @@ public class SolarService {
 						+ "RE Sanctioned Capacity Cannot Be Greater Then Existing Total Load\n"
 						+ "Total RE Capacity Applied =" + (req.getExistReSancCapacity() + req.getNewReCapacity()) + "\n"
 						+ "Existing Total load =" + req.getExistingLoad() + "\n"
-						+ "Please Extend Load OR Apply Solar Capacity UpTo Total Load";
+						+ "Load Extension Required First Create Load Change Application OR Apply Solar Capacity UpTo Total Load";
 			}
 			
 			
@@ -444,10 +532,10 @@ public class SolarService {
 				
 			}
 			}
-			if(req.getSolarSchemeCode()==5)
+			if(req.getSolarSchemeCode()!=1)
 			{
-			return "Error : Solar Smart Scheme Application Not Allowed From Maitri Portal"	;		}
-			
+				return "Error: Only applications under the Non-Subsidized Scheme are allowed from the Maitri Portal. The wrong scheme code has been selected.";
+				}			
 			
 
 			// Validate solarSchemeCode
@@ -495,13 +583,9 @@ public class SolarService {
 			// end reArrangementId
 
 			// Validate reGeneratorString
-			String reGeneratorString = req.getReGeneratorString();
+			//String reGeneratorString = req.getReGeneratorString();
 
-			if (reGeneratorString == null || reGeneratorString.isBlank()) {
-
-				return "ERROR: Re Generator String is required";
-
-			}
+			
 
 			String[] values = reGeneratorString.split("@");
 
@@ -647,6 +731,34 @@ public class SolarService {
 						+ "  \nExisting Total load =" + req.getExistingLoad() + "  \nInverter Capacity="
 						+ req.getInverterCapacity();
 			}
+			if (Math.ceil(req.getInverterCapacity()) < Math.ceil(req.getNewReCapacity())) {
+			    return "ERROR: Inverter Capacity should be greater than or equal to Applied Solar Sanctioned Capacity.\n"
+			            + "Applied Solar Sanctioned Capacity = " + req.getNewReCapacity()
+			            + "\nInverter Capacity = " + req.getInverterCapacity();
+			}
+			
+			if (req.getNewReCapacity() > 100) {
+
+			    double minimumBatteryCapacity = req.getNewReCapacity() * 0.50;
+
+			    if (req.getBatteryStorageCapacity() == null
+			            || req.getBatteryStorageCapacity() < minimumBatteryCapacity) {
+
+			        return "ERROR: Battery Storage Capacity should be at least 50% of Applied Solar Sanctioned Capacity.\n"
+			                + "Applied Solar Sanctioned Capacity = " + req.getNewReCapacity()
+			                + "\nMinimum Required Battery Storage Capacity = " + minimumBatteryCapacity
+			                + "\nBattery Storage Capacity = " + req.getBatteryStorageCapacity();
+			    }
+			}
+			
+			if (req.getBatteryStorageCapacity() != null
+			        && req.getBatteryStorageCapacity() > req.getNewReCapacity()) {
+
+			    return "ERROR: Battery Storage Capacity cannot be greater than Applied Solar Sanctioned Capacity.\n"
+			            + "Applied Solar Sanctioned Capacity = " + req.getNewReCapacity()
+			            + "\nBattery Storage Capacity = " + req.getBatteryStorageCapacity();
+			}
+			
 
 			if (!req.getConsumerCategoryExisting().equalsIgnoreCase(req.getConsumerCategoryLtHt())) {
 				return "Error: Existing Category " + req.getConsumerCategoryExisting() + " And Provided Category "
@@ -764,7 +876,7 @@ public class SolarService {
 			// STEP 4: SOLAR APPLICATION CREATION
 			// ==================================================
 			solarCs = conn.prepareCall(
-					"{ ? = call PK_PAY_NC_CHARGES.set_information_from_solarpv(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) }");
+					"{ ? = call PK_PAY_NC_CHARGES.set_information_from_solarpv(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) }");
 
 			solarCs.registerOutParameter(1, java.sql.Types.VARCHAR);
 
@@ -790,11 +902,13 @@ public class SolarService {
 			 * solarCs.setDouble(19, req.getNewDemand());
 			 * solarCs.setInt(20, req.getLoadChangeApplicationId());
 			 */
-			solarCs.setDouble(17, 0);
+			//solarCs.setDouble(17, 0);
+			solarCs.setDouble(17, req.getExistingLoad());
 			solarCs.setInt(18, 0);
 			solarCs.setDouble(19, 0);
 			solarCs.setInt(20, 0);
 			solarCs.setString(21,req.getCreatedBy());
+			solarCs.setDouble(22, req.getBatteryStorageCapacity());
 
 			/*
 			 * solarCs.setDouble(17, req.getNewLoad()); solarCs.setInt(18,
